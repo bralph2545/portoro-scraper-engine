@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm">Total Configs</p>
+                <p class="text-3xl font-bold">
+                    <span id="total-configs" hx-get="/stats/config-count" hx-trigger="load, every 30s" hx-swap="innerHTML">-</span>
+                </p>
+            </div>
+            <div class="text-blue-500 text-4xl">⚙️</div>
+        </div>
+        <a href="/configs" class="text-blue-600 text-sm mt-4 block hover:underline">Manage Configs →</a>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm">Active Scrapes</p>
+                <p class="text-3xl font-bold">
+                    <span id="active-count" hx-get="/stats/active-count" hx-trigger="load, every 10s" hx-swap="innerHTML">-</span>
+                </p>
+            </div>
+            <div class="text-green-500 text-4xl">🔄</div>
+        </div>
+        <a href="/scrapes" class="text-blue-600 text-sm mt-4 block hover:underline">View All Runs →</a>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm">Total Addresses</p>
+                <p class="text-3xl font-bold">
+                    <span id="total-addresses" hx-get="/stats/address-count" hx-trigger="load, every 30s" hx-swap="innerHTML">-</span>
+                </p>
+            </div>
+            <div class="text-purple-500 text-4xl">📍</div>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="bg-white rounded-lg shadow">
+        <div class="p-6 border-b">
+            <h2 class="text-xl font-bold">Recent Configurations</h2>
+        </div>
+        <div id="recent-configs" hx-get="/configs-partial" hx-trigger="load" hx-swap="innerHTML">
+            <div class="p-6 text-center text-gray-500">Loading...</div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow">
+        <div class="p-6 border-b">
+            <h2 class="text-xl font-bold">Recent Scrape Runs</h2>
+        </div>
+        <div id="recent-runs" hx-get="/scrapes-partial" hx-trigger="load, every 10s" hx-swap="innerHTML">
+            <div class="p-6 text-center text-gray-500">Loading...</div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+    <h3 class="text-lg font-semibold text-blue-900 mb-3">🚀 Quick Start</h3>
+    <div class="space-y-2 text-sm text-blue-800">
+        <p>1. Create a configuration for your target site in <a href="/configs" class="underline font-semibold">Configurations</a></p>
+        <p>2. Start a scrape run with one click</p>
+        <p>3. Monitor progress and export results as CSV</p>
+    </div>
+</div>
+{% endblock %}
