@@ -1,0 +1,58 @@
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Python caches
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# IDE/editor junk
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment / secrets
+.env
+.env.local
+.env.*.local
+
+# Data and outputs
+data/*
+!data/.gitkeep
+output/*
+!output/.gitkeep
+logs/*
+*.log
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Test caches
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Temporary files
+*.tmp
+*.bak
+*.backup
+
+# OS specific
+Thumbs.db
