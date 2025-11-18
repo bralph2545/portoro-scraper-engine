@@ -1,0 +1,31 @@
+{% if runs %}
+<div class="divide-y">
+    {% for r in runs %}
+    <div class="p-4 hover:bg-gray-50">
+        <div class="flex justify-between items-center">
+            <div>
+                <a href="/scrapes/{{ r.id }}" class="font-semibold text-blue-600 hover:underline">Run #{{ r.id }}</a>
+                <p class="text-xs text-gray-500">{{ r.start_time }}</p>
+            </div>
+            <div class="text-right">
+                {% if r.status == 'queued' %}
+                <span class="px-2 py-1 text-xs rounded bg-yellow-100 text-yellow-800">{{ r.status }}</span>
+                {% elif r.status == 'running' %}
+                <span class="px-2 py-1 text-xs rounded bg-blue-100 text-blue-800">{{ r.status }}</span>
+                {% elif r.status == 'completed' %}
+                <span class="px-2 py-1 text-xs rounded bg-green-100 text-green-800">{{ r.status }}</span>
+                {% elif r.status == 'failed' %}
+                <span class="px-2 py-1 text-xs rounded bg-red-100 text-red-800">{{ r.status }}</span>
+                {% else %}
+                <span class="px-2 py-1 text-xs rounded bg-gray-100 text-gray-800">{{ r.status }}</span>
+                {% endif %}
+                <p class="text-xs text-gray-500 mt-1">{{ r.addresses_extracted }} addresses</p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<div class="p-4 border-t"><a href="/scrapes" class="text-blue-600 text-sm hover:underline">View all →</a></div>
+{% else %}
+<div class="p-6 text-center text-gray-500">No scrape runs yet.</div>
+{% endif %}

@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}Scrape Runs - Vacation Rental Scraper{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl font-bold mb-6">Scrape Runs</h1>
+
+<div class="bg-white rounded-lg shadow mb-6 p-4">
+    <div class="flex space-x-4">
+        <select id="status-filter" class="border rounded px-3 py-2" onchange="filterRuns()">
+            <option value="">All Statuses</option>
+            <option value="queued">Queued</option>
+            <option value="running">Running</option>
+            <option value="completed">Completed</option>
+            <option value="failed">Failed</option>
+            <option value="cancelled">Cancelled</option>
+        </select>
+    </div>
+</div>
+
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Run ID</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progress</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pages</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Addresses</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Started</th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+        </thead>
+        <tbody id="scrapes-table" hx-get="/api/scrapes?limit=50" hx-trigger="load, every 10s" hx-target="this" hx-swap="innerHTML" class="bg-white divide-y divide-gray-200">
+            <tr><td colspan="7" class="px-6 py-4 text-center text-gray-500">Loading scrape runs...</td></tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.body.addEventListener('htmx:afterSwap', function(event) {
+    if (event.detail.target.id === 'scrapes-table') {
+        const runs = JSON.parse(event.detail.xhr.response);
+        let html = '';
+        
+        runs.forEach(run => {
+            const statusColors = {
+                'queued': 'bg-yellow-100 text-yellow-800',
+                'running': 'bg-blue-100 text-blue-800',
+                'completed': 'bg-green-100 text-green-800',
+                'failed': 'bg-red-100 text-red-800',
+                'cancelled': 'bg-gray-100 text-gray-800'
+            };
+            
+            const statusColor = statusColors[run.status] || 'bg-gray-100 text-gray-800';
+            const progress = run.total_pages_estimate > 0 
+                ? Math.round((run.current_page / run.total_pages_estimate) * 100) 
+                : 0;
+            
+            const progressBar = run.status === 'running' && run.total_pages_estimate > 0
+                ? `<div class="w-full bg-gray-200 rounded-full h-2.5">
+                     <div class="bg-blue-600 h-2.5 rounded-full" style="width: ${progress}%"></div>
+                   </div>
+                   <span class="text-xs text-gray-500">${run.current_page}/${run.total_pages_estimate}</span>`
+                : '-';
+            
+            html += `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <a href="/scrapes/${run.id}" class="text-blue-600 hover:underline">#${run.id}</a>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColor}">
+                            ${run.status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${progressBar}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${run.listing_pages_found}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${run.addresses_extracted}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${new Date(run.start_time).toLocaleString()}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <a href="/scrapes/${run.id}" class="text-blue-600 hover:text-blue-900 mr-3">View</a>
+                        ${run.status === 'running' || run.status === 'queued' 
+                            ? `<button onclick="cancelRun(${run.id})" class="text-red-600 hover:text-red-900">Cancel</button>`
+                            : ''}
+                    </td>
+                </tr>
+            `;
+        });
+        
+        if (runs.length === 0) {
+            html = '<tr><td colspan="7" class="px-6 py-4 text-center text-gray-500">No scrape runs found.</td></tr>';
+        }
+        
+        event.detail.target.innerHTML = html;
+    }
+});
+
+function filterRuns() {
+    const status = document.getElementById('status-filter').value;
+    const url = status ? `/api/scrapes?status=${status}&limit=50` : '/api/scrapes?limit=50';
+    htmx.ajax('GET', url, '#scrapes-table');
+}
+
+async function cancelRun(runId) {
+    if (!confirm('Are you sure you want to cancel this scrape run?')) return;
+    
+    try {
+        const response = await fetch(`/api/scrapes/${runId}/cancel`, { method: 'POST' });
+        if (!response.ok) throw new Error('Failed to cancel scrape');
+        htmx.trigger('#scrapes-table', 'load');
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}
+</script>
+{% endblock %}
