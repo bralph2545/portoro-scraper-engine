@@ -1,0 +1,38 @@
+# Test configuration for 30A Escapes
+# A real vacation rental site for testing the scraper
+
+manager_name: "30A Escapes"
+manager_domain: "30aescapes.com"
+market_name: "30A / Destin, FL"
+
+# Starting URL - just test with a small subset
+seed_urls:
+  - "https://www.30aescapes.com/search/for-rent"
+
+# URL patterns that indicate listing pages
+listing_url_patterns:
+  - "/vacation-rentals/"
+  - "/properties/"
+
+# URL patterns to exclude from crawling
+excluded_url_patterns:
+  - "/blog"
+  - "/about"
+  - "/contact"
+  - "/services"
+
+# CSS selectors for listing detail pages
+listing_page_selectors:
+  address_container_selectors:
+    - ".property-address"
+    - ".address"
+    - "[itempr op='address']"
+
+# Crawler behavior settings - keep it light for testing
+crawl_settings:
+  max_concurrency: 2
+  min_delay_ms: 1000
+  max_depth: 2
+  scroll_attempts: 2  # Reduced for faster testing
+  wait_for_selector_timeout: 5000
+  user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"

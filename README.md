@@ -86,12 +86,28 @@ python scripts/run_scrape.py --config configs/example_site.yaml
 
 ### 1. Run a Scrape
 
+#### Option A: Config-Based Mode (Recommended)
+
+Create a YAML config file and run:
+
 ```bash
 python scripts/run_scrape.py --config configs/example_site.yaml
 ```
 
-This will:
-- Discover all listing pages from the configured seed URLs
+#### Option B: Quick "Paste URL" Mode
+
+No config file needed - just provide the URL and basic info:
+
+```bash
+python scripts/run_scrape.py \
+    --url https://example.com/vacation-rentals \
+    --manager-name "Example Rentals" \
+    --manager-domain example.com \
+    --market-name "Miami Beach, FL"
+```
+
+Both modes will:
+- Discover all listing pages from the seed URLs
 - Classify pages as listings or non-listings
 - Extract address candidates using multiple strategies
 - Normalize and enrich addresses
