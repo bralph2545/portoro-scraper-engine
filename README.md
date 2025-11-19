@@ -1,16 +1,112 @@
-# Vacation Rental Property Address Scraper
+# 🏖️ Universal Vacation Rental Property Scraper
 
-A production-grade, config-driven web scraping system for extracting vacation rental property addresses from competitor websites.
+A smart web scraper that extracts **complete property data** from ANY vacation rental website - no coding required!
+
+## 🚀 Two Ways to Use This Tool
+
+### Option 1: Web App (Recommended - No Coding!) ⭐
+
+Deploy to Railway.app and use a simple web form:
+- ✅ **No terminal or Python needed** - just a web browser
+- ✅ **Works on ANY vacation rental website** - paste any URL
+- ✅ **Password protected** with scrape history
+- ✅ **Download JSON/CSV** results with one click
+- ✅ **Free hosting** (Railway free tier)
+
+👉 **[See Web App Deployment Guide](RAILWAY_DEPLOYMENT.md)**
+👉 **[See User Guide](USER_GUIDE.md)**
+
+### Option 2: Command Line (Advanced Users)
+
+Use the CLI tool for batch processing or automation:
+- Run from terminal with `python scripts/universal_property_scraper.py`
+- Works locally, on VPS, or GitHub Codespaces
+- Great for scheduled scraping or processing multiple sites
+
+👉 **[See CLI Deployment Guide](DEPLOYMENT_GUIDE.md)**
+
+---
+
+## What This Tool Does
+
+**Input:** Any vacation rental website URL (e.g., `https://www.30aescapes.com/all-rentals`)
+
+**Process:**
+1. Discovers ALL individual property listings from that page
+2. Visits each property page
+3. Uses OpenAI to intelligently extract complete property data
+4. Works on ANY website structure - no configuration needed
+
+**Output:** JSON or CSV with complete property information:
+- Property management company
+- Property name
+- **Full address** (street, city, state, ZIP, country)
+- Bedrooms, bathrooms, sleeps
+- Nightly rate range
+- Amenities list
+- Description
+- Property ID
+- Confidence score
+
+---
 
 ## Features
 
-- **Config-Driven**: Add new sites by creating a YAML config file, no code changes needed
+- **Universal**: Works on ANY vacation rental website without custom configs
+- **AI-Powered**: Uses OpenAI GPT-4o-mini for intelligent data extraction
+- **Complete Data**: Extracts full property details, not just addresses
 - **Real Browser**: Uses Playwright for JavaScript-heavy sites
 - **Smart Discovery**: Handles pagination, infinite scroll, and "Load More" buttons
-- **Multi-Strategy Extraction**: schema.org JSON-LD, CSS selectors, text heuristics, map widgets
-- **Address Normalization**: Parses and enriches incomplete addresses using context
-- **SQLite Storage**: Local database with comprehensive data model
-- **CSV Export**: Clean exports with one row per property
+- **No Coding Required**: Web interface for non-technical users
+- **History Tracking**: Saves all past scrapes with download links
+- **Password Protected**: Secure access to your scraper
+- **JSON & CSV Export**: Choose your preferred format
+
+---
+
+## 🎯 Quick Start (Web App)
+
+**For non-technical users - get started in 5 minutes:**
+
+1. **Deploy to Railway** - Follow [RAILWAY_DEPLOYMENT.md](RAILWAY_DEPLOYMENT.md)
+2. **Set your OpenAI API key** in Railway environment variables
+3. **Set a password** for your scraper
+4. **Open your Railway URL** and log in
+5. **Paste any vacation rental URL** and click "Start Scraping"
+6. **Download JSON/CSV** when complete
+
+**That's it!** No coding, no terminal, no complexity.
+
+👉 **[Full User Guide](USER_GUIDE.md)**
+
+---
+
+## 💰 Costs
+
+### Railway Hosting (Free Tier)
+- **$5 free credits/month**
+- **500 hours execution time**
+- More than enough for typical use
+- No credit card required initially
+
+### OpenAI API
+- **~$0.01 - $0.10 per property** (using gpt-4o-mini)
+- 10 properties = $0.10
+- 100 properties = $1.00
+- Very affordable!
+
+**Total estimated cost:** $1-10/month for typical use
+
+---
+
+## 📚 Documentation
+
+- **[Railway Deployment Guide](RAILWAY_DEPLOYMENT.md)** - Deploy the web app (5 minutes)
+- **[User Guide](USER_GUIDE.md)** - How to use the web interface
+- **[CLI Deployment Guide](DEPLOYMENT_GUIDE.md)** - Advanced deployment options
+- **[Universal Scraper Guide](UNIVERSAL_SCRAPER_GUIDE.md)** - CLI tool documentation
+
+---
 
 ## Architecture
 

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Property Scraper</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status-box {
+            display: none;
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .status-box.show {
+            display: block;
+        }
+
+        .status-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .status-message {
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+            width: 0%;
+        }
+
+        .progress-text {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .download-buttons {
+            display: none;
+            margin-top: 15px;
+        }
+
+        .download-buttons.show {
+            display: flex;
+            gap: 10px;
+        }
+
+        .download-btn {
+            flex: 1;
+            padding: 10px;
+            background: #10b981;
+            color: white;
+            text-decoration: none;
+            text-align: center;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .download-btn:hover {
+            background: #059669;
+        }
+
+        .nav-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .nav-link:hover {
+            text-decoration: underline;
+        }
+
+        .success {
+            border-left-color: #10b981;
+        }
+
+        .error {
+            border-left-color: #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏖️ Property Scraper</h1>
+        <p class="subtitle">Extract property data from any vacation rental website</p>
+
+        <form id="scrapeForm">
+            <div class="form-group">
+                <label for="url">Website URL</label>
+                <input
+                    type="text"
+                    id="url"
+                    name="url"
+                    placeholder="https://www.example.com/vacation-rentals"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="company">Company Name</label>
+                <input
+                    type="text"
+                    id="company"
+                    name="company"
+                    placeholder="Example Rentals"
+                    required
+                >
+            </div>
+
+            <button type="submit" class="btn" id="submitBtn">
+                Start Scraping
+            </button>
+        </form>
+
+        <div id="statusBox" class="status-box">
+            <div class="status-title" id="statusTitle">Processing...</div>
+            <div class="status-message" id="statusMessage">Initializing scraper...</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">0 / 0</div>
+
+            <div id="downloadButtons" class="download-buttons">
+                <a href="#" id="downloadJson" class="download-btn">Download JSON</a>
+                <a href="#" id="downloadCsv" class="download-btn">Download CSV</a>
+            </div>
+        </div>
+
+        <a href="/history" class="nav-link">View Scrape History →</a>
+    </div>
+
+    <script>
+        const form = document.getElementById('scrapeForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const statusBox = document.getElementById('statusBox');
+        const statusTitle = document.getElementById('statusTitle');
+        const statusMessage = document.getElementById('statusMessage');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const downloadButtons = document.getElementById('downloadButtons');
+        const downloadJson = document.getElementById('downloadJson');
+        const downloadCsv = document.getElementById('downloadCsv');
+
+        let currentJobId = null;
+        let statusInterval = null;
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const url = document.getElementById('url').value;
+            const company = document.getElementById('company').value;
+
+            // Disable form
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Scraping...';
+
+            // Show status box
+            statusBox.classList.add('show');
+            statusBox.classList.remove('success', 'error');
+            downloadButtons.classList.remove('show');
+
+            try {
+                // Start scrape
+                const response = await fetch('/scrape', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({ url, company })
+                });
+
+                const data = await response.json();
+                currentJobId = data.job_id;
+
+                // Poll for status
+                statusInterval = setInterval(checkStatus, 2000);
+
+            } catch (error) {
+                statusTitle.textContent = 'Error';
+                statusMessage.textContent = error.message;
+                statusBox.classList.add('error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Start Scraping';
+            }
+        });
+
+        async function checkStatus() {
+            if (!currentJobId) return;
+
+            try {
+                const response = await fetch(`/status/${currentJobId}`);
+                const status = await response.json();
+
+                // Update UI
+                statusMessage.textContent = status.message;
+
+                if (status.total > 0) {
+                    const percent = (status.progress / status.total) * 100;
+                    progressFill.style.width = `${percent}%`;
+                    progressText.textContent = `${status.progress} / ${status.total}`;
+                }
+
+                // Check if completed
+                if (status.status === 'completed') {
+                    clearInterval(statusInterval);
+                    statusTitle.textContent = '✅ Complete!';
+                    statusBox.classList.add('success');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Start Scraping';
+
+                    // Show download buttons
+                    downloadButtons.classList.add('show');
+                    downloadJson.href = `/download/${currentJobId}`;
+                    downloadCsv.href = `/download/${currentJobId}/csv`;
+                }
+
+                // Check if failed
+                if (status.status === 'failed') {
+                    clearInterval(statusInterval);
+                    statusTitle.textContent = '❌ Failed';
+                    statusBox.classList.add('error');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Start Scraping';
+                }
+
+            } catch (error) {
+                clearInterval(statusInterval);
+                statusTitle.textContent = 'Error';
+                statusMessage.textContent = 'Failed to get status';
+                statusBox.classList.add('error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Start Scraping';
+            }
+        }
+    </script>
+</body>
+</html>
