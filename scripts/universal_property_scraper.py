@@ -29,6 +29,7 @@ import json
 import csv
 import sys
 import os
+import logging
 from pathlib import Path
 from datetime import datetime
 from urllib.parse import urlparse
@@ -40,7 +41,7 @@ from src.llm_extractor import LLMPropertyExtractor
 from src.models import SiteConfig, CrawlSettings
 from src.utils import setup_logging, is_likely_listing_url
 
-logger = None
+logger = logging.getLogger(__name__)
 
 
 async def discover_property_urls(index_url: str, company_domain: str) -> list:
@@ -205,9 +206,7 @@ def save_to_csv(properties: list, output_path: str):
 
 async def main_async(args):
     """Main async function."""
-    global logger
     setup_logging(level=args.log_level)
-    logger = __import__('logging').getLogger(__name__)
 
     # Validate OpenAI API key
     api_key = args.api_key or os.getenv('OPENAI_API_KEY')
