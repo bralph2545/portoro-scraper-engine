@@ -158,9 +158,9 @@ class Database:
         self.conn.commit()
         logger.info("Database tables created/verified")
     
-    def insert_site(self, manager_name: str, manager_domain: str, 
+    def insert_site(self, manager_name: str, manager_domain: str,
                     market_name: str = None, config_file: str = None) -> int:
-        """Insert or update a site record."""
+        """Insert or update a site record and return its ID."""
         cursor = self.conn.cursor()
         cursor.execute("""
             INSERT INTO sites (manager_name, manager_domain, market_name, config_file)
@@ -172,7 +172,10 @@ class Database:
                 updated_at = CURRENT_TIMESTAMP
         """, (manager_name, manager_domain, market_name, config_file))
         self.conn.commit()
-        return cursor.lastrowid
+
+        # Get the site ID (works for both insert and update)
+        cursor.execute("SELECT id FROM sites WHERE manager_domain = ?", (manager_domain,))
+        return cursor.fetchone()[0]
     
     def get_site_by_domain(self, domain: str) -> Optional[Dict[str, Any]]:
         """Get site by domain."""

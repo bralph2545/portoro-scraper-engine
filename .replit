@@ -1,0 +1,14 @@
+# Replit configuration for Vacation Rental Scraper
+run = "python scripts/run_scrape.py --help"
+
+entrypoint = "scripts/run_scrape.py"
+
+[nix]
+channel = "stable-24_05"
+
+[deployment]
+run = ["sh", "-c", "python scripts/run_scrape.py --help"]
+
+[[ports]]
+localPort = 8000
+externalPort = 80

@@ -112,15 +112,52 @@ class ListingPage:
 
 
 @dataclass
+class PropertyData:
+    """Complete property information extracted from a listing page using LLM."""
+    # Core identification
+    listing_url: str
+    property_management_company: Optional[str] = None
+    property_name: Optional[str] = None
+
+    # Address fields
+    street_address: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    zip_code: Optional[str] = None
+    country: str = "USA"
+
+    # Property details
+    bedrooms: Optional[int] = None
+    bathrooms: Optional[float] = None
+    sleeps: Optional[int] = None
+
+    # Pricing
+    nightly_rate_min: Optional[float] = None
+    nightly_rate_max: Optional[float] = None
+
+    # Additional info
+    amenities: List[str] = field(default_factory=list)
+    description: Optional[str] = None
+    property_id: Optional[str] = None
+
+    # Metadata
+    confidence: float = 0.0
+    extraction_method: str = "unknown"
+    model_used: Optional[str] = None
+    extracted_at: Optional[datetime] = None
+
+
+@dataclass
 class ScrapeMetrics:
     """Metrics for a scrape run."""
     pages_visited: int = 0
     listing_pages_found: int = 0
     addresses_extracted: int = 0
+    properties_extracted: int = 0
     errors_count: int = 0
     start_time: Optional[datetime] = None
     end_time: Optional[datetime] = None
-    
+
     def duration_seconds(self) -> Optional[float]:
         """Calculate duration in seconds."""
         if self.start_time and self.end_time:

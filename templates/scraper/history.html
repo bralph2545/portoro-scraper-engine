@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scrape History</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .nav-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .nav-link:hover {
+            text-decoration: underline;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state h2 {
+            margin-bottom: 10px;
+            color: #999;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        thead {
+            background: #f8f9fa;
+        }
+
+        th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #e0e0e0;
+            font-size: 14px;
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            color: #555;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-failed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-processing {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .download-btn {
+            display: inline-block;
+            padding: 6px 12px;
+            margin-right: 5px;
+            background: #10b981;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .download-btn:hover {
+            background: #059669;
+        }
+
+        .company-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .url-cell {
+            max-width: 300px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .url-cell a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .url-cell a:hover {
+            text-decoration: underline;
+        }
+
+        .count {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .date {
+            color: #888;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📋 Scrape History</h1>
+        <p class="subtitle">View and download your past property scrapes</p>
+
+        <a href="/" class="nav-link">← Back to Scraper</a>
+
+        <div id="historyContent">
+            <div class="empty-state">
+                <h2>Loading...</h2>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadHistory() {
+            try {
+                const response = await fetch('/history');
+                const scrapes = await response.json();
+
+                const container = document.getElementById('historyContent');
+
+                if (scrapes.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <h2>No scrapes yet</h2>
+                            <p>Start your first scrape from the <a href="/">main page</a></p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Build table
+                let html = `
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Company</th>
+                                    <th>Website</th>
+                                    <th>Properties</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Downloads</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                scrapes.forEach(scrape => {
+                    const statusClass = scrape.status === 'completed' ? 'status-completed' :
+                                      scrape.status === 'failed' ? 'status-failed' : 'status-processing';
+                    const statusText = scrape.status === 'completed' ? '✅ Complete' :
+                                     scrape.status === 'failed' ? '❌ Failed' : '⏳ Processing';
+
+                    const date = new Date(scrape.created_at).toLocaleString();
+
+                    html += `
+                        <tr>
+                            <td><span class="company-name">${escapeHtml(scrape.company)}</span></td>
+                            <td class="url-cell">
+                                <a href="${escapeHtml(scrape.url)}" target="_blank" title="${escapeHtml(scrape.url)}">
+                                    ${escapeHtml(scrape.url)}
+                                </a>
+                            </td>
+                            <td><span class="count">${scrape.property_count}</span></td>
+                            <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                            <td class="date">${date}</td>
+                            <td>
+                                ${scrape.status === 'completed' && scrape.property_count > 0 ? `
+                                    <a href="/download/${scrape.id}" class="download-btn">JSON</a>
+                                    <a href="/download/${scrape.id}/csv" class="download-btn">CSV</a>
+                                ` : '-'}
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                html += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+
+                container.innerHTML = html;
+
+            } catch (error) {
+                console.error('Failed to load history:', error);
+                document.getElementById('historyContent').innerHTML = `
+                    <div class="empty-state">
+                        <h2>Error loading history</h2>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Load history on page load
+        loadHistory();
+    </script>
+</body>
+</html>
