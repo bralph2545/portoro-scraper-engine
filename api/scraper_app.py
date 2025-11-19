@@ -316,6 +316,18 @@ async def health_check():
     return {"status": "healthy"}
 
 
+@app.get("/debug/env")
+async def debug_env(username: str = Depends(verify_auth)):
+    """Debug endpoint to check environment variables."""
+    api_key = os.getenv('OPENAI_API_KEY')
+    return {
+        "OPENAI_API_KEY_configured": bool(api_key),
+        "OPENAI_API_KEY_length": len(api_key) if api_key else 0,
+        "OPENAI_API_KEY_prefix": api_key[:7] if api_key else None,
+        "all_env_vars": list(os.environ.keys())
+    }
+
+
 if __name__ == "__main__":
     import uvicorn
     port = int(os.getenv("PORT", 8000))
